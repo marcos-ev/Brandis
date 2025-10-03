@@ -46,7 +46,7 @@ Este é um projeto frontend moderno desenvolvido com:
 5. Acesse o projeto no navegador em:
 
    ```
-   http://localhost:5173
+   http://localhost:8080
    ```
 
 ---
