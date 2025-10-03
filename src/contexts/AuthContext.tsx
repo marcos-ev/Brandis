@@ -52,52 +52,114 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return;
+  const createProfile = async (userId: string) => {
+    console.log('🆕 Criando perfil para usuário:', userId);
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const email = userData.user?.email || '';
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          email: email,
+          full_name: userData.user?.user_metadata?.full_name || null,
+          plan_type: 'free',
+          generations_used: 0,
+          generations_limit: 3
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao criar perfil:', error);
+        return;
+      }
+
+      if (data) {
+        console.log('✅ Perfil criado com sucesso:', data);
+        setProfile({
+          ...data,
+          plan_type: data.plan_type as 'free' | 'pro' | 'premium'
+        });
+      }
+    } catch (error) {
+      console.error('💥 Erro inesperado ao criar perfil:', error);
     }
-    
-    if (data) {
-      setProfile({
-        ...data,
-        plan_type: data.plan_type as 'free' | 'pro' | 'premium'
-      });
+  };
+
+  const fetchProfile = async (userId: string) => {
+    console.log('👤 Buscando perfil para usuário:', userId);
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      console.log('📡 Resposta da query:', { data, error });
+
+      if (error) {
+        console.error('❌ Erro ao buscar perfil:', error);
+
+        // Se o perfil não existe, criar um automaticamente
+        if (error.code === 'PGRST116') {
+          console.log('🆕 Perfil não existe, criando automaticamente...');
+          await createProfile(userId);
+          return;
+        }
+        return;
+      }
+
+      if (data) {
+        console.log('✅ Perfil carregado:', {
+          id: data.id,
+          email: data.email,
+          plan_type: data.plan_type,
+          generations_used: data.generations_used,
+          generations_limit: data.generations_limit
+        });
+
+        setProfile({
+          ...data,
+          plan_type: data.plan_type as 'free' | 'pro' | 'premium'
+        });
+      } else {
+        console.log('⚠️ Nenhum perfil encontrado');
+      }
+    } catch (error) {
+      console.error('💥 Erro inesperado ao buscar perfil:', error);
     }
   };
 
   const checkSubscription = async () => {
     if (!session) return;
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('check-subscription');
-      
+
       if (error) throw error;
-      
+
       setSubscription(data);
-      
+
       // Update profile with subscription info
       if (data.subscribed && profile) {
         const planType = data.product_id === PLANS.pro.product_id ? 'pro' :
-                        data.product_id === PLANS.premium.product_id ? 'premium' : 'free';
-        
+          data.product_id === PLANS.premium.product_id ? 'premium' : 'free';
+
         const generationsLimit = planType === 'premium' ? 999999 :
-                                planType === 'pro' ? 30 : 3;
-        
+          planType === 'pro' ? 30 : 3;
+
         await supabase
           .from('profiles')
-          .update({ 
+          .update({
             plan_type: planType,
-            generations_limit: generationsLimit 
+            generations_limit: generationsLimit
           })
           .eq('id', profile.id);
-        
+
         await fetchProfile(profile.id);
       }
     } catch (error) {
@@ -118,28 +180,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        console.log('🔄 Auth state change:', event, currentSession?.user?.email);
+
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
-        
+
         if (currentSession?.user) {
-          await fetchProfile(currentSession.user.id);
+          console.log('👤 Usuário logado, buscando perfil...');
+
+          // Adicionar timeout para evitar loading infinito
+          const timeoutPromise = new Promise<void>((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout ao carregar perfil')), 10000);
+          });
+
+          try {
+            await Promise.race([fetchProfile(currentSession.user.id), timeoutPromise]);
+          } catch (error) {
+            console.error('⏰ Timeout ou erro ao carregar perfil:', error);
+            // Continuar mesmo com erro para não travar a aplicação
+          }
         } else {
+          console.log('👤 Usuário deslogado, limpando estados...');
           setProfile(null);
           setSubscription(null);
         }
-        
+
         setLoading(false);
+        console.log('✅ Loading finalizado');
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      
+
       if (currentSession?.user) {
-        fetchProfile(currentSession.user.id);
+        console.log('🔄 Sessão inicial encontrada, buscando perfil...');
+
+        // Adicionar timeout para evitar loading infinito
+        const timeoutPromise = new Promise<void>((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout ao carregar perfil')), 10000);
+        });
+
+        try {
+          await Promise.race([fetchProfile(currentSession.user.id), timeoutPromise]);
+        } catch (error) {
+          console.error('⏰ Timeout ou erro ao carregar perfil na inicialização:', error);
+          // Continuar mesmo com erro para não travar a aplicação
+        }
       }
-      
+
       setLoading(false);
     });
 
@@ -154,7 +244,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
+
     if (error) {
       toast({
         title: "Erro ao fazer login",
@@ -167,13 +257,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: "Bem-vindo de volta!",
       });
     }
-    
+
     return { error };
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -184,7 +274,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     });
-    
+
     if (error) {
       toast({
         title: "Erro ao criar conta",
@@ -197,21 +287,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: "Bem-vindo ao Brandis!",
       });
     }
-    
+
     return { error };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-    setSubscription(null);
-    
-    toast({
-      title: "Logout realizado",
-      description: "Até logo!",
-    });
+    console.log('🚪 Iniciando logout...');
+
+    try {
+      await supabase.auth.signOut();
+      console.log('✅ Supabase signOut executado');
+
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setSubscription(null);
+
+      console.log('✅ Estados limpos');
+
+      toast({
+        title: "Logout realizado",
+        description: "Até logo!",
+      });
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+      toast({
+        title: "Erro no logout",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
