@@ -18,7 +18,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border shadow-card mb-6 animate-fade-in">
           <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">Powered by AI</span>
+          <span className="text-sm font-medium">Geração Automática de Marcas</span>
         </div>
 
         {/* Main heading */}

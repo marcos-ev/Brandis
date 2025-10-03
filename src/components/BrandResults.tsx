@@ -7,7 +7,7 @@ import { MockupsCard } from "./brand/MockupsCard";
 
 interface BrandResultsProps {
   results: {
-    logo?: string;
+    logos?: string[];
     colors?: string[];
     typography?: { primary: string; secondary: string };
     mockups?: string[];
@@ -48,7 +48,7 @@ export const BrandResults = ({ results, onReset }: BrandResultsProps) => {
 
         {/* Results Grid */}
         <div className="grid gap-6 md:grid-cols-2">
-          {results.logo && <LogoCard logoUrl={results.logo} />}
+          {results.logos && <LogoCard logos={results.logos} />}
           
           {results.colors && <ColorPaletteCard colors={results.colors} />}
           
