@@ -1,12 +1,23 @@
-# 📦 Projeto Brandis
+# 🎨 Brandis - Gerador de Marcas com IA
 
-Este é um projeto frontend moderno desenvolvido com:
+Transforme briefings em marcas completas usando inteligência artificial.
+
+## ✨ Funcionalidades
+
+* 🎨 **Geração de Logos** - Crie logos únicos e profissionais
+* 🎨 **Paletas de Cores** - Paletas harmoniosas e estratégicas
+* ✍️ **Tipografia** - Fontes perfeitas para sua marca
+* 📱 **Mockups** - Apresentações visuais profissionais
+
+## 🛠️ Tecnologias
 
 * ⚡ [Vite](https://vitejs.dev/)
 * ⚛️ [React](https://react.dev/)
 * 🟦 [TypeScript](https://www.typescriptlang.org/)
 * 🎨 [Tailwind CSS](https://tailwindcss.com/)
 * 🧩 [shadcn/ui](https://ui.shadcn.com/)
+* 🔥 [Supabase](https://supabase.com/)
+* 🤖 [Google Gemini AI](https://ai.google.dev/)
 
 ---
 

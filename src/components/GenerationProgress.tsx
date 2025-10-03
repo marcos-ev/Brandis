@@ -84,17 +84,17 @@ export const GenerationProgress = ({ isLoading }: GenerationProgressProps) => {
                 <div
                   key={step.id}
                   className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 ${isActive
-                      ? 'bg-primary/10 border border-primary/20'
-                      : isCompleted
-                        ? 'bg-green-50 border border-green-200'
-                        : 'bg-muted/30'
+                    ? 'bg-primary/10 border border-primary/20'
+                    : isCompleted
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-muted/30'
                     }`}
                 >
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${isCompleted
-                      ? 'bg-green-500 text-white'
-                      : isActive
-                        ? 'bg-primary text-white'
-                        : 'bg-muted text-muted-foreground'
+                    ? 'bg-green-500 text-white'
+                    : isActive
+                      ? 'bg-primary text-white'
+                      : 'bg-muted text-muted-foreground'
                     }`}>
                     {isCompleted ? (
                       <CheckCircle className="w-4 h-4" />

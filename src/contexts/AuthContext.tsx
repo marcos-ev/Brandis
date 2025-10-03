@@ -53,8 +53,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   const createProfile = async (userId: string) => {
-    console.log('🆕 Criando perfil para usuário:', userId);
-
     try {
       const { data: userData } = await supabase.auth.getUser();
       const email = userData.user?.email || '';
@@ -73,25 +71,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        console.error('❌ Erro ao criar perfil:', error);
+        console.error('Error creating profile:', error);
         return;
       }
 
       if (data) {
-        console.log('✅ Perfil criado com sucesso:', data);
         setProfile({
           ...data,
           plan_type: data.plan_type as 'free' | 'pro' | 'premium'
         });
       }
     } catch (error) {
-      console.error('💥 Erro inesperado ao criar perfil:', error);
+      console.error('Unexpected error creating profile:', error);
     }
   };
 
   const fetchProfile = async (userId: string) => {
-    console.log('👤 Buscando perfil para usuário:', userId);
-
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -99,14 +94,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('id', userId)
         .single();
 
-      console.log('📡 Resposta da query:', { data, error });
-
       if (error) {
-        console.error('❌ Erro ao buscar perfil:', error);
+        console.error('Error fetching profile:', error);
 
         // Se o perfil não existe, criar um automaticamente
         if (error.code === 'PGRST116') {
-          console.log('🆕 Perfil não existe, criando automaticamente...');
           await createProfile(userId);
           return;
         }
@@ -114,23 +106,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data) {
-        console.log('✅ Perfil carregado:', {
-          id: data.id,
-          email: data.email,
-          plan_type: data.plan_type,
-          generations_used: data.generations_used,
-          generations_limit: data.generations_limit
-        });
-
         setProfile({
           ...data,
           plan_type: data.plan_type as 'free' | 'pro' | 'premium'
         });
-      } else {
-        console.log('⚠️ Nenhum perfil encontrado');
       }
     } catch (error) {
-      console.error('💥 Erro inesperado ao buscar perfil:', error);
+      console.error('Unexpected error fetching profile:', error);
     }
   };
 
@@ -180,33 +162,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        console.log('🔄 Auth state change:', event, currentSession?.user?.email);
-
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          console.log('👤 Usuário logado, buscando perfil...');
-
           // Adicionar timeout para evitar loading infinito
           const timeoutPromise = new Promise<void>((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout ao carregar perfil')), 10000);
+            setTimeout(() => reject(new Error('Timeout loading profile')), 10000);
           });
 
           try {
             await Promise.race([fetchProfile(currentSession.user.id), timeoutPromise]);
           } catch (error) {
-            console.error('⏰ Timeout ou erro ao carregar perfil:', error);
+            console.error('Timeout or error loading profile:', error);
             // Continuar mesmo com erro para não travar a aplicação
           }
         } else {
-          console.log('👤 Usuário deslogado, limpando estados...');
           setProfile(null);
           setSubscription(null);
         }
 
         setLoading(false);
-        console.log('✅ Loading finalizado');
       }
     );
 
@@ -215,17 +191,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(currentSession?.user ?? null);
 
       if (currentSession?.user) {
-        console.log('🔄 Sessão inicial encontrada, buscando perfil...');
-
         // Adicionar timeout para evitar loading infinito
         const timeoutPromise = new Promise<void>((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout ao carregar perfil')), 10000);
+          setTimeout(() => reject(new Error('Timeout loading profile')), 10000);
         });
 
         try {
           await Promise.race([fetchProfile(currentSession.user.id), timeoutPromise]);
         } catch (error) {
-          console.error('⏰ Timeout ou erro ao carregar perfil na inicialização:', error);
+          console.error('Timeout or error loading profile on init:', error);
           // Continuar mesmo com erro para não travar a aplicação
         }
       }
@@ -292,25 +266,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    console.log('🚪 Iniciando logout...');
-
     try {
       await supabase.auth.signOut();
-      console.log('✅ Supabase signOut executado');
 
       setUser(null);
       setSession(null);
       setProfile(null);
       setSubscription(null);
 
-      console.log('✅ Estados limpos');
-
       toast({
         title: "Logout realizado",
         description: "Até logo!",
       });
     } catch (error) {
-      console.error('❌ Erro no logout:', error);
+      console.error('Error during logout:', error);
       toast({
         title: "Erro no logout",
         description: "Tente novamente.",
