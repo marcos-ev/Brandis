@@ -32,11 +32,15 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a professional brand strategist. Analyze the briefing and return ONLY a valid JSON object with the following structure: {"colors": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"], "typography": {"primary": "Font Name", "secondary": "Font Name"}, "logoPrompt": "detailed description for logo generation", "mockupPrompts": ["prompt1", "prompt2", "prompt3"]}'
+            content: 'You are a professional brand strategist. Analyze the briefing and create a cohesive brand identity. Return ONLY a valid JSON object with the following structure: {"colors": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"], "typography": {"primary": "Font Name", "secondary": "Font Name"}, "logoPrompt": "detailed description for logo generation", "mockupPrompts": ["prompt1", "prompt2", "prompt3"]}. Ensure colors are harmonious, fonts are complementary, and mockup prompts describe realistic applications that will showcase the brand consistently.'
           },
           {
             role: 'user',
-            content: `Based on this briefing, create a complete brand strategy:\n\n${briefing}\n\nReturn ONLY the JSON object with colors (5 hex codes), typography (primary and secondary fonts from Google Fonts), logoPrompt (detailed description for AI image generation), and mockupPrompts (3 descriptions for brand mockups).`
+            content: `Based on this briefing, create a complete brand strategy:\n\n${briefing}\n\nReturn ONLY the JSON object with:
+            - colors: 5 harmonious hex codes that work well together
+            - typography: primary and secondary fonts from Google Fonts that complement each other
+            - logoPrompt: detailed description for AI image generation including style, colors, and elements
+            - mockupPrompts: 3 realistic mockup descriptions (e.g., "business card with logo and contact info", "website header with navigation", "product packaging") that will showcase the brand consistently using the same colors and typography.`
           }
         ],
         temperature: 0.7,
@@ -70,8 +74,14 @@ serve(async (req) => {
 
     console.log('Parsed strategy:', strategy);
 
-    // Step 2: Generate multiple logo variations
+    // Step 2: Generate multiple logo variations with brand consistency
     const logoPromises = Array.from({ length: variationsCount }, async (_, index) => {
+      // Create enhanced logo prompt with brand colors
+      const brandColors = strategy.colors.join(', ');
+      const enhancedLogoPrompt = `${strategy.logoPrompt}. 
+      Brand Colors: ${brandColors}. 
+      Use these exact colors in the logo design.`;
+      
       const logoResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -83,7 +93,11 @@ serve(async (req) => {
           messages: [
             {
               role: 'user',
-              content: `Create a professional logo variation ${index + 1}: ${strategy.logoPrompt}. Style: modern, clean, minimalist, vectorial. High quality, transparent background if possible. Make this version unique and different from other variations.`
+              content: `Create a professional logo variation ${index + 1}: ${enhancedLogoPrompt}. 
+              Style: modern, clean, minimalist, vectorial. 
+              High quality, transparent background if possible. 
+              Make this version unique and different from other variations while maintaining brand consistency. 
+              Use the specified brand colors throughout the design.`
             }
           ],
           modalities: ['image', 'text']
@@ -105,9 +119,20 @@ serve(async (req) => {
       throw new Error('No logo images generated');
     }
 
-    // Step 3: Generate multiple mockup variations
+    // Step 3: Generate multiple mockup variations with brand consistency
     const mockupPromises = strategy.mockupPrompts.flatMap((prompt: string) =>
       Array.from({ length: variationsCount }, async (_, index) => {
+        // Create enhanced prompt with brand colors and typography
+        const brandColors = strategy.colors.join(', ');
+        const primaryFont = strategy.typography.primary;
+        const secondaryFont = strategy.typography.secondary;
+        
+        const enhancedPrompt = `${prompt}. 
+        Brand Colors: ${brandColors}. 
+        Typography: Primary font "${primaryFont}", Secondary font "${secondaryFont}". 
+        Apply these exact colors and fonts consistently throughout the mockup. 
+        Ensure visual harmony between logo, colors, and typography.`;
+        
         const mockupResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -119,7 +144,10 @@ serve(async (req) => {
             messages: [
               {
                 role: 'user',
-                content: `Create a professional brand mockup variation ${index + 1}: ${prompt}. High quality, realistic, professional photography style. Make this version unique.`
+                content: `Create a professional brand mockup variation ${index + 1}: ${enhancedPrompt}. 
+                High quality, realistic, professional photography style. 
+                Make this version unique while maintaining brand consistency. 
+                Use the specified colors and typography throughout the design.`
               }
             ],
             modalities: ['image', 'text']

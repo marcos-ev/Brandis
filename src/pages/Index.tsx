@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Hero } from "@/components/Hero";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { BriefingInput } from "@/components/BriefingInput";
 import { BrandResults } from "@/components/BrandResults";
 import { GenerationProgress } from "@/components/GenerationProgress";
@@ -9,6 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useRateLimit } from "@/utils/rateLimiter";
+import { useGenerationQueue } from "@/utils/generationQueue";
+import { useSmartCache } from "@/utils/smartCache";
+import { useRetryHandler } from "@/utils/retryHandler";
 
 type Step = "hero" | "input" | "results";
 
@@ -25,6 +30,12 @@ const Index = () => {
   const [results, setResults] = useState<BrandResults>({});
   const { user, profile, refreshProfile, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Sistemas inteligentes
+  const { checkLimit } = useRateLimit(user?.id || null);
+  const { addJob, getStatus } = useGenerationQueue();
+  const { get: getCached, set: setCached, findSimilar } = useSmartCache();
+  const { executeWithRetry, executeWithTimeout } = useRetryHandler();
 
 
   const handleGetStarted = () => {
@@ -52,22 +63,39 @@ const Index = () => {
       return;
     }
 
-    if (!profile) {
-      // Criar perfil temporário para permitir continuar
-      const tempProfile = {
-        id: user.id,
-        email: user.email || '',
-        full_name: user.user_metadata?.full_name || null,
-        plan_type: 'free' as const,
-        generations_used: 0,
-        generations_limit: 3
-      };
-
-      // Continuar com perfil temporário
-      // Não retornar aqui, deixar continuar
+    // 🚀 1. RATE LIMITING - Verifica se pode gerar
+    const rateLimitCheck = checkLimit(1, 60000); // 1 geração por minuto
+    if (!rateLimitCheck.canProceed) {
+      toast.error(`Aguarde ${rateLimitCheck.retryAfter} segundos antes de gerar novamente.`);
+      return;
     }
 
-    // Check generation limits
+    // 🗄️ 2. CACHE - Verifica se já existe resultado similar
+    const cachedResult = getCached(briefing, user.id);
+    if (cachedResult) {
+      toast.success("Resultado encontrado no cache!");
+      setResults(cachedResult.data);
+      setStep("results");
+      return;
+    }
+
+    // 🔍 3. SIMILAR RESULTS - Oferece resultados similares
+    const similarResults = findSimilar(briefing, user.id, 0.8);
+    if (similarResults.length > 0) {
+      const shouldUseSimilar = confirm(
+        `Encontramos ${similarResults.length} resultado(s) similar(es). Deseja usar um deles ou gerar um novo?`
+      );
+
+      if (shouldUseSimilar) {
+        const bestMatch = similarResults[0];
+        setResults(bestMatch.data);
+        setStep("results");
+        toast.success("Usando resultado similar do cache!");
+        return;
+      }
+    }
+
+    // 📊 4. PROFILE & LIMITS - Verifica limites de geração
     const currentProfile = profile || {
       id: user.id,
       email: user.email || '',
@@ -83,50 +111,55 @@ const Index = () => {
       return;
     }
 
+    // 🎯 5. QUEUE STATUS - Verifica status da fila
+    const queueStatus = getStatus();
+    if (queueStatus.isProcessing) {
+      toast.info(`Fila ativa: ${queueStatus.queueLength} gerações na frente. Aguarde...`);
+    }
+
     setIsLoading(true);
 
     try {
-      // Adicionar timeout de 2 minutos
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout: A geração está demorando muito. Tente novamente.')), 120000);
-      });
+      // 🚀 6. INTELLIGENT GENERATION - Usa retry + timeout + queue
+      const result = await executeWithTimeout(
+        async () => {
+          // Adiciona à fila inteligente
+          const jobId = await addJob(user.id, briefing, 'normal');
 
-      const generatePromise = supabase.functions.invoke('generate-brand', {
-        body: {
-          briefing,
-          variationsCount: currentProfile.plan_type === 'premium' ? 5 :
-            currentProfile.plan_type === 'pro' ? 3 : 1
-        }
-      });
+          // Executa com retry inteligente
+          return await executeWithRetry(
+            async () => {
+              const { data, error } = await supabase.functions.invoke('generate-brand', {
+                body: {
+                  briefing,
+                  variationsCount: currentProfile.plan_type === 'premium' ? 999 :
+                    currentProfile.plan_type === 'pro' ? 8 : 3
+                }
+              });
 
-      const result = await Promise.race([generatePromise, timeoutPromise]) as any;
-      const { data, error } = result;
+              if (error) throw error;
+              return data;
+            },
+            `generate-brand-${user.id}`,
+            { maxRetries: 3, baseDelay: 2000 }
+          );
+        },
+        120000, // 2 minutos timeout
+        `generation-${user.id}`
+      );
 
-      if (error) {
-        console.error('Error generating brand:', error);
+      if (result) {
+        // 💾 7. CACHE RESULT - Salva no cache inteligente
+        setCached(briefing, user.id, result);
 
-        if (error.message?.includes('Timeout')) {
-          toast.error("A geração está demorando muito. Tente novamente.");
-        } else if (error.message?.includes('429')) {
-          toast.error("Limite de requisições atingido. Tente novamente em alguns minutos.");
-        } else if (error.message?.includes('402')) {
-          toast.error("Créditos insuficientes.");
-        } else {
-          toast.error("Erro ao gerar marca. Tente novamente.");
-        }
-
-        return;
-      }
-
-      if (data) {
-        // Save generation to database
+        // 💾 8. DATABASE - Salva no banco
         await supabase.from('generations').insert({
           user_id: user.id,
           briefing,
-          results: data
+          results: result
         });
 
-        // Update usage count
+        // 📊 9. UPDATE USAGE - Atualiza contador
         await supabase
           .from('profiles')
           .update({ generations_used: currentProfile.generations_used + 1 })
@@ -134,15 +167,29 @@ const Index = () => {
 
         await refreshProfile();
 
-        setResults(data);
+        setResults(result);
         setStep("results");
         toast.success("Marca gerada com sucesso!");
       } else {
         toast.error("Nenhum dado foi retornado pela API.");
       }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      toast.error("Erro inesperado. Tente novamente.");
+    } catch (error: any) {
+      console.error('Generation error:', error);
+
+      // 🎯 10. SMART ERROR HANDLING
+      if (error.message?.includes('Circuit breaker')) {
+        toast.error("Serviço temporariamente indisponível. Tente novamente em alguns minutos.");
+      } else if (error.message?.includes('timeout')) {
+        toast.error("A geração está demorando muito. Tente novamente.");
+      } else if (error.message?.includes('429')) {
+        toast.error("Limite de requisições atingido. Tente novamente em alguns minutos.");
+      } else if (error.message?.includes('402')) {
+        toast.error("Créditos insuficientes.");
+      } else if (error.message?.includes('All retry attempts failed')) {
+        toast.error("Falha após múltiplas tentativas. Tente novamente mais tarde.");
+      } else {
+        toast.error("Erro ao gerar marca. Tente novamente.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -162,17 +209,20 @@ const Index = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen pt-16">
-        {step === "hero" && <Hero onGetStarted={handleGetStarted} />}
-        {step === "input" && !isLoading && (
-          <BriefingInput onSubmit={handleSubmitBriefing} isLoading={isLoading} />
-        )}
-        {step === "input" && isLoading && (
-          <GenerationProgress isLoading={isLoading} />
-        )}
-        {step === "results" && (
-          <BrandResults results={results} onReset={handleReset} />
-        )}
+      <div className="min-h-screen pt-16 flex flex-col">
+        <div className="flex-1">
+          {step === "hero" && <Hero onGetStarted={handleGetStarted} />}
+          {step === "input" && !isLoading && (
+            <BriefingInput onSubmit={handleSubmitBriefing} isLoading={isLoading} />
+          )}
+          {step === "input" && isLoading && (
+            <GenerationProgress isLoading={isLoading} />
+          )}
+          {step === "results" && (
+            <BrandResults results={results} onReset={handleReset} />
+          )}
+        </div>
+        <Footer />
       </div>
     </>
   );

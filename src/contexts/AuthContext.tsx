@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           data.product_id === PLANS.premium.product_id ? 'premium' : 'free';
 
         const generationsLimit = planType === 'premium' ? 999999 :
-          planType === 'pro' ? 30 : 3;
+          planType === 'pro' ? 15 : 3;
 
         await supabase
           .from('profiles')
@@ -168,7 +168,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (currentSession?.user) {
           // Adicionar timeout para evitar loading infinito
           const timeoutPromise = new Promise<void>((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout loading profile')), 10000);
+            setTimeout(() => reject(new Error('Timeout loading profile')), 5000);
           });
 
           try {
@@ -193,7 +193,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (currentSession?.user) {
         // Adicionar timeout para evitar loading infinito
         const timeoutPromise = new Promise<void>((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout loading profile')), 10000);
+          setTimeout(() => reject(new Error('Timeout loading profile')), 5000);
         });
 
         try {
@@ -212,7 +212,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (user && profile) {
-      checkSubscription();
+      // Temporariamente desabilitado devido a erro 500
+      // checkSubscription();
     }
   }, [user, profile]);
 
@@ -266,20 +267,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    console.log('🔐 AuthContext: Iniciando signOut...');
     try {
+      console.log('🔐 AuthContext: Chamando supabase.auth.signOut()...');
       await supabase.auth.signOut();
+      console.log('🔐 AuthContext: Supabase signOut executado');
 
+      console.log('🔐 AuthContext: Limpando estados...');
       setUser(null);
       setSession(null);
       setProfile(null);
       setSubscription(null);
+      console.log('🔐 AuthContext: Estados limpos');
 
       toast({
         title: "Logout realizado",
         description: "Até logo!",
       });
+      console.log('🔐 AuthContext: Toast exibido');
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('❌ AuthContext: Erro durante logout:', error);
       toast({
         title: "Erro no logout",
         description: "Tente novamente.",

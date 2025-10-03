@@ -16,14 +16,20 @@ export const Header = () => {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    console.log('🚪 Iniciando logout...');
+    try {
+      await signOut();
+      console.log('✅ Logout concluído, navegando...');
+      navigate("/");
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+    }
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div 
+        <div
           className="text-2xl font-bold gradient-text cursor-pointer"
           onClick={() => navigate("/")}
         >
@@ -31,7 +37,7 @@ export const Header = () => {
         </div>
 
         <nav className="flex items-center gap-4">
-          <Button 
+          <Button
             variant="ghost"
             onClick={() => navigate("/pricing")}
           >
@@ -67,7 +73,7 @@ export const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button 
+            <Button
               onClick={() => navigate("/auth")}
               className="gradient-primary hover:opacity-90 transition-smooth"
             >
