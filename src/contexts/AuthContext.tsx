@@ -106,10 +106,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data) {
-        setProfile({
+        // 🚀 TEMPORÁRIO: Força conta marcosev@gmail.com para Premium ilimitado
+        const isMarcoAccount = data.email === 'marcosev@gmail.com';
+        
+        const profileData = isMarcoAccount ? {
+          ...data,
+          plan_type: 'premium' as const,
+          generations_used: 0,
+          generations_limit: 999999
+        } : {
           ...data,
           plan_type: data.plan_type as 'free' | 'pro' | 'premium'
-        });
+        };
+        
+        setProfile(profileData);
+        
+        if (isMarcoAccount) {
+          console.log('🚀 Conta marcosev@gmail.com configurada como Premium ilimitado!');
+          
+          // Atualiza no banco também
+          await supabase
+            .from('profiles')
+            .update({
+              plan_type: 'premium',
+              generations_used: 0,
+              generations_limit: 999999
+            })
+            .eq('id', userId);
+        }
       }
     } catch (error) {
       console.error('Unexpected error fetching profile:', error);
