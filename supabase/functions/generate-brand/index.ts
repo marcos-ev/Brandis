@@ -112,8 +112,8 @@ serve(async (req) => {
 
     console.log('Logo generated successfully');
 
-    // Step 3: Generate mockups (3 different mockups)
-    console.log('Starting mockup generation...');
+    // Step 3: Generate mockups using the actual logo
+    console.log('Starting mockup generation with actual logo...');
     const mockupPrompts = strategy.mockupPrompts || [
       'Business card with logo and contact information on a wooden desk',
       'Website homepage mockup on laptop screen showing the brand',
@@ -137,11 +137,23 @@ serve(async (req) => {
             messages: [
               {
                 role: 'user',
-                content: `Create a professional brand mockup: ${mockupPrompts[i]}. 
-                Brand Colors: ${strategy.colors.join(', ')}. 
-                Typography: Primary font "${strategy.typography.primary}", Secondary font "${strategy.typography.secondary}". 
-                High quality, realistic, professional photography style. 
-                Apply the brand colors throughout the design.`
+                content: [
+                  {
+                    type: 'text',
+                    text: `Create a professional brand mockup: ${mockupPrompts[i]}. 
+                    Use THIS EXACT LOGO image in the mockup (provided below).
+                    Brand Colors: ${strategy.colors.join(', ')}. 
+                    Typography: Primary font "${strategy.typography.primary}", Secondary font "${strategy.typography.secondary}". 
+                    High quality, realistic, professional photography style. 
+                    IMPORTANT: Place the provided logo prominently in the mockup design.`
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: {
+                      url: logoUrl
+                    }
+                  }
+                ]
               }
             ],
             modalities: ['image', 'text']
@@ -159,7 +171,7 @@ serve(async (req) => {
 
         if (mockupUrl) {
           mockups.push(mockupUrl);
-          console.log(`Mockup ${i + 1} generated successfully`);
+          console.log(`Mockup ${i + 1} generated successfully with logo integration`);
         } else {
           console.error(`Mockup ${i + 1}: No URL in response`);
         }
