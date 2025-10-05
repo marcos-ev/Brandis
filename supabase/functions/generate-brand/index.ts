@@ -120,51 +120,70 @@ serve(async (req) => {
     }
 
     // Step 3: Generate multiple mockup variations with brand consistency
+    console.log('Starting mockup generation with prompts:', strategy.mockupPrompts);
+    
     const mockupPromises = strategy.mockupPrompts.flatMap((prompt: string) =>
       Array.from({ length: variationsCount }, async (_, index) => {
-        // Create enhanced prompt with brand colors and typography
-        const brandColors = strategy.colors.join(', ');
-        const primaryFont = strategy.typography.primary;
-        const secondaryFont = strategy.typography.secondary;
-        
-        const enhancedPrompt = `${prompt}. 
-        Brand Colors: ${brandColors}. 
-        Typography: Primary font "${primaryFont}", Secondary font "${secondaryFont}". 
-        Apply these exact colors and fonts consistently throughout the mockup. 
-        Ensure visual harmony between logo, colors, and typography.`;
-        
-        const mockupResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image-preview',
-            messages: [
-              {
-                role: 'user',
-                content: `Create a professional brand mockup variation ${index + 1}: ${enhancedPrompt}. 
-                High quality, realistic, professional photography style. 
-                Make this version unique while maintaining brand consistency. 
-                Use the specified colors and typography throughout the design.`
-              }
-            ],
-            modalities: ['image', 'text']
-          }),
-        });
+        try {
+          // Create enhanced prompt with brand colors and typography
+          const brandColors = strategy.colors.join(', ');
+          const primaryFont = strategy.typography.primary;
+          const secondaryFont = strategy.typography.secondary;
+          
+          const enhancedPrompt = `${prompt}. 
+          Brand Colors: ${brandColors}. 
+          Typography: Primary font "${primaryFont}", Secondary font "${secondaryFont}". 
+          Apply these exact colors and fonts consistently throughout the mockup. 
+          Ensure visual harmony between logo, colors, and typography.`;
+          
+          console.log(`Generating mockup ${index + 1} for prompt: ${prompt.substring(0, 50)}...`);
+          
+          const mockupResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash-image-preview',
+              messages: [
+                {
+                  role: 'user',
+                  content: `Create a professional brand mockup variation ${index + 1}: ${enhancedPrompt}. 
+                  High quality, realistic, professional photography style. 
+                  Make this version unique while maintaining brand consistency. 
+                  Use the specified colors and typography throughout the design.`
+                }
+              ],
+              modalities: ['image', 'text']
+            }),
+          });
 
-        if (!mockupResponse.ok) {
-          console.error('Mockup generation error:', mockupResponse.status);
+          if (!mockupResponse.ok) {
+            const errorText = await mockupResponse.text();
+            console.error('Mockup generation error:', mockupResponse.status, errorText);
+            return null;
+          }
+
+          const mockupData = await mockupResponse.json();
+          const mockupUrl = mockupData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+          
+          if (mockupUrl) {
+            console.log(`Mockup ${index + 1} generated successfully`);
+          } else {
+            console.error(`Mockup ${index + 1} generation failed - no URL in response`);
+          }
+          
+          return mockupUrl;
+        } catch (error) {
+          console.error(`Error generating mockup ${index + 1}:`, error);
           return null;
         }
-
-        const mockupData = await mockupResponse.json();
-        return mockupData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
       })
     );
 
     const mockups = (await Promise.all(mockupPromises)).filter(Boolean);
+    console.log(`Generated ${mockups.length} mockups total`);
 
     console.log('Generation complete, returning results');
 
