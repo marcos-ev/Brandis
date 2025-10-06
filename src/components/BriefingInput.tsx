@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface BriefingInputProps {
   onSubmit: (briefing: string) => void;
@@ -10,6 +11,7 @@ interface BriefingInputProps {
 
 export const BriefingInput = ({ onSubmit, isLoading }: BriefingInputProps) => {
   const [briefing, setBriefing] = useState("");
+  const { t } = useTranslation();
 
   const handleSubmit = () => {
     if (briefing.trim()) {
@@ -26,16 +28,16 @@ export const BriefingInput = ({ onSubmit, isLoading }: BriefingInputProps) => {
             <span className="text-sm font-medium">Passo 1</span>
           </div>
           <h2 className="text-4xl font-bold mb-3">
-            Cole o <span className="gradient-text">briefing</span> do cliente
+            {t('briefing.title')}
           </h2>
           <p className="text-muted-foreground">
-            Quanto mais detalhes você fornecer, melhor será o resultado
+            {t('briefing.subtitle')}
           </p>
         </div>
 
         <div className="bg-card rounded-2xl border border-border shadow-card p-6 space-y-4">
           <Textarea
-            placeholder="Ex: Empresa de tecnologia focada em sustentabilidade. Público-alvo: empresas B2B. Tom: moderno, confiável e inovador. Cores preferidas: verde e azul. Estilo: minimalista..."
+            placeholder={t('briefing.placeholder')}
             value={briefing}
             onChange={(e) => setBriefing(e.target.value)}
             className="min-h-[300px] resize-none text-base border-border focus:ring-primary"
@@ -52,11 +54,11 @@ export const BriefingInput = ({ onSubmit, isLoading }: BriefingInputProps) => {
               {isLoading ? (
                 <>
                   <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                  Gerando marca...
+                  {t('progress.generating')}
                 </>
               ) : (
                 <>
-                  Gerar Marca
+                  {t('briefing.generate')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}

@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, CreditCard, LogOut } from "lucide-react";
+import { User, CreditCard, LogOut, Languages } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,13 @@ import {
 export const Header = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'pt' ? 'en' : 'pt';
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('language', newLang);
+  };
 
   const handleSignOut = async () => {
     console.log('🚪 Iniciando logout...');
@@ -39,10 +47,19 @@ export const Header = () => {
         <nav className="flex items-center gap-4">
           <Button
             variant="ghost"
+            onClick={toggleLanguage}
+            className="hover:bg-secondary transition-smooth"
+          >
+            <Languages className="w-4 h-4 mr-2" />
+            {i18n.language === 'pt' ? 'EN' : 'PT'}
+          </Button>
+
+          <Button
+            variant="ghost"
             onClick={() => navigate("/pricing")}
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            Planos
+            {t('header.pricing')}
           </Button>
 
           {user ? (
@@ -57,18 +74,18 @@ export const Header = () => {
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{profile?.full_name || user.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      Plano {profile?.plan_type}
+                      {t('header.myAccount')}: {profile?.plan_type}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/pricing")}>
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Ver planos
+                  {t('header.pricing')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sair
+                  {t('header.logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -77,7 +94,7 @@ export const Header = () => {
               onClick={() => navigate("/auth")}
               className="gradient-primary hover:opacity-90 transition-smooth"
             >
-              Entrar
+              {t('header.login')}
             </Button>
           )}
         </nav>

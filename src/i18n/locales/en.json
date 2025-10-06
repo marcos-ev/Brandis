@@ -1,0 +1,144 @@
+{
+  "header": {
+    "pricing": "Pricing",
+    "login": "Login",
+    "logout": "Logout",
+    "myAccount": "My Account",
+    "usage": "Usage"
+  },
+  "hero": {
+    "badge": "Automated Brand Generation",
+    "title": "Transform briefings into complete brands",
+    "subtitle": "Create professional visual identities with AI. Generate logos, color palettes, typography and mockups in minutes.",
+    "cta": "Get Started",
+    "features": {
+      "logos": "Unique Logos",
+      "colors": "Color Palettes",
+      "typography": "Typography",
+      "mockups": "Mockups"
+    }
+  },
+  "briefing": {
+    "title": "Describe your brand",
+    "subtitle": "The more details you provide, the better the result",
+    "placeholder": "Ex: A modern and cozy coffee shop in the city center, focused on high-quality artisanal coffee. Target audience: young professionals, 25-40 years. Values: sustainability, quality, community...",
+    "generate": "Generate Brand",
+    "cancel": "Cancel"
+  },
+  "progress": {
+    "generating": "Generating your brand...",
+    "step1": "Analyzing briefing",
+    "step2": "Creating concept",
+    "step3": "Generating logos",
+    "step4": "Defining color palette",
+    "step5": "Selecting typography",
+    "step6": "Creating mockups",
+    "step7": "Finalizing"
+  },
+  "results": {
+    "title": "Your brand is ready!",
+    "subtitle": "Here are all the elements of your visual identity",
+    "downloadAll": "Download All",
+    "newBrand": "Create New Brand",
+    "downloading": "Preparing download...",
+    "downloadSuccess": "Download started successfully!",
+    "downloadError": "Error preparing download",
+    "logos": "Logos",
+    "download": "Download",
+    "colors": "Color Palette",
+    "typography": "Typography",
+    "primaryFont": "Primary Font",
+    "secondaryFont": "Secondary Font",
+    "primaryFontDesc": "For titles and highlights",
+    "secondaryFontDesc": "For body text and paragraphs",
+    "mockups": "Mockups"
+  },
+  "footer": {
+    "about": "About Brandis",
+    "aboutText": "We transform briefings into complete brands using advanced artificial intelligence.",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "contact": "Contact",
+    "contactPage": "Contact Page",
+    "rights": "All rights reserved.",
+    "madeBy": "Made with",
+    "by": "by"
+  },
+  "auth": {
+    "welcome": "Welcome to Brandis",
+    "subtitle": "Create your account or login to get started",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "signup": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signupLink": "Sign up",
+    "loginLink": "Log in"
+  },
+  "pricing": {
+    "title": "Choose the perfect plan for you",
+    "subtitle": "Start for free and upgrade when you need",
+    "currentPlan": "Current Plan",
+    "subscribe": "Subscribe",
+    "manageSubscription": "Manage Subscription",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "/month",
+      "features": [
+        "3 brand generations per month",
+        "Standard quality",
+        "Email support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "badge": "Most Popular",
+      "price": "$49",
+      "period": "/month",
+      "features": [
+        "20 brand generations per month",
+        "High quality",
+        "Priority support",
+        "Unlimited revisions"
+      ]
+    },
+    "premium": {
+      "name": "Premium",
+      "price": "$99",
+      "period": "/month",
+      "features": [
+        "Unlimited generations",
+        "Maximum quality",
+        "24/7 support",
+        "Unlimited revisions",
+        "API access"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions"
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "We're here to help you",
+    "info": "Contact Information",
+    "email": "Email",
+    "hours": "Business Hours",
+    "hoursText": "Monday to Friday, 9am to 6pm",
+    "support": "Technical Support",
+    "supportText": "For technical issues, send an email detailing the problem encountered."
+  },
+  "notFound": {
+    "title": "404",
+    "subtitle": "Oops! Page not found",
+    "back": "Return to Home"
+  }
+}

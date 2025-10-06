@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface HeroProps {
   onGetStarted: () => void;
 }
 
 export const Hero = ({ onGetStarted }: HeroProps) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-subtle">
       {/* Animated background elements */}
@@ -18,20 +21,17 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border shadow-card mb-6 animate-fade-in">
           <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">Geração Automática de Marcas</span>
+          <span className="text-sm font-medium">{t('hero.badge')}</span>
         </div>
 
         {/* Main heading */}
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 animate-fade-in">
-          Transforme{" "}
-          <span className="gradient-text">briefings</span>
-          <br />
-          em marcas completas
+          {t('hero.title')}
         </h1>
 
         {/* Subtitle */}
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in animation-delay-200">
-          A partir do briefing do cliente, gere logos, tipografia, paletas de cores, mockups e ilustrações — tudo em um só lugar.
+          {t('hero.subtitle')}
         </p>
 
         {/* CTA Button */}
@@ -40,16 +40,16 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           size="lg" 
           className="gradient-primary hover:opacity-90 shadow-elegant transition-smooth text-lg px-8 py-6 animate-fade-in animation-delay-400"
         >
-          Começar Agora
+          {t('hero.cta')}
         </Button>
 
         {/* Features list */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 animate-fade-in animation-delay-600">
           {[
-            { icon: "🎨", label: "Logos únicos" },
-            { icon: "🎨", label: "Paletas de cores" },
-            { icon: "✍️", label: "Tipografia" },
-            { icon: "📱", label: "Mockups" },
+            { icon: "🎨", label: t('hero.features.logos') },
+            { icon: "🎨", label: t('hero.features.colors') },
+            { icon: "✍️", label: t('hero.features.typography') },
+            { icon: "📱", label: t('hero.features.mockups') },
           ].map((feature, index) => (
             <div
               key={index}

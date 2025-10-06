@@ -6,6 +6,7 @@ import { TypographyCard } from "./brand/TypographyCard";
 import { MockupsCard } from "./brand/MockupsCard";
 import JSZip from "jszip";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface BrandResultsProps {
   results: {
@@ -18,9 +19,11 @@ interface BrandResultsProps {
 }
 
 export const BrandResults = ({ results, onReset }: BrandResultsProps) => {
+  const { t, i18n } = useTranslation();
+  
   const handleDownloadAll = async () => {
     try {
-      toast.info("Preparando download...");
+      toast.info(t('results.downloading'));
       const zip = new JSZip();
 
       // Criar pasta de imagens
@@ -63,7 +66,7 @@ export const BrandResults = ({ results, onReset }: BrandResultsProps) => {
       }
 
       infoText += "DATA DE CRIAÇÃO:\n";
-      infoText += new Date().toLocaleDateString("pt-BR", {
+      infoText += new Date().toLocaleDateString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -84,10 +87,10 @@ export const BrandResults = ({ results, onReset }: BrandResultsProps) => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success("Download concluído!");
+      toast.success(t('results.downloadSuccess'));
     } catch (error) {
       console.error("Erro ao baixar:", error);
-      toast.error("Erro ao preparar o download");
+      toast.error(t('results.downloadError'));
     }
   };
 
@@ -97,10 +100,10 @@ export const BrandResults = ({ results, onReset }: BrandResultsProps) => {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-3">
-            Sua <span className="gradient-text">marca</span> está pronta!
+            {t('results.title')}
           </h2>
           <p className="text-muted-foreground mb-6">
-            Explore os elementos gerados e faça o download quando estiver satisfeito
+            {t('results.subtitle')}
           </p>
           
           <div className="flex gap-3 justify-center">
@@ -110,14 +113,14 @@ export const BrandResults = ({ results, onReset }: BrandResultsProps) => {
               className="border-border hover:bg-secondary transition-smooth"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Novo Briefing
+              {t('results.newBrand')}
             </Button>
             <Button
               onClick={handleDownloadAll}
               className="gradient-primary hover:opacity-90 shadow-elegant transition-smooth"
             >
               <Download className="w-4 h-4 mr-2" />
-              Baixar Tudo
+              {t('results.downloadAll')}
             </Button>
           </div>
         </div>

@@ -1,0 +1,144 @@
+{
+  "header": {
+    "pricing": "Planos",
+    "login": "Entrar",
+    "logout": "Sair",
+    "myAccount": "Minha Conta",
+    "usage": "Uso"
+  },
+  "hero": {
+    "badge": "Geração Automática de Marcas",
+    "title": "Transforme briefings em marcas completas",
+    "subtitle": "Crie identidades visuais profissionais com IA. Gere logos, paletas de cores, tipografia e mockups em minutos.",
+    "cta": "Começar Agora",
+    "features": {
+      "logos": "Logos Únicos",
+      "colors": "Paletas de Cores",
+      "typography": "Tipografia",
+      "mockups": "Mockups"
+    }
+  },
+  "briefing": {
+    "title": "Descreva sua marca",
+    "subtitle": "Quanto mais detalhes você fornecer, melhor será o resultado",
+    "placeholder": "Ex: Uma cafeteria moderna e acolhedora no centro da cidade, focada em café artesanal de alta qualidade. Público jovem profissional, 25-40 anos. Valores: sustentabilidade, qualidade, comunidade...",
+    "generate": "Gerar Marca",
+    "cancel": "Cancelar"
+  },
+  "progress": {
+    "generating": "Gerando sua marca...",
+    "step1": "Analisando briefing",
+    "step2": "Criando conceito",
+    "step3": "Gerando logos",
+    "step4": "Definindo paleta de cores",
+    "step5": "Selecionando tipografia",
+    "step6": "Criando mockups",
+    "step7": "Finalizando"
+  },
+  "results": {
+    "title": "Sua marca está pronta!",
+    "subtitle": "Aqui estão todos os elementos da sua identidade visual",
+    "downloadAll": "Baixar Tudo",
+    "newBrand": "Criar Nova Marca",
+    "downloading": "Preparando download...",
+    "downloadSuccess": "Download iniciado com sucesso!",
+    "downloadError": "Erro ao preparar download",
+    "logos": "Logos",
+    "download": "Baixar",
+    "colors": "Paleta de Cores",
+    "typography": "Tipografia",
+    "primaryFont": "Fonte Principal",
+    "secondaryFont": "Fonte Secundária",
+    "primaryFontDesc": "Para títulos e destaques",
+    "secondaryFontDesc": "Para corpo de texto e parágrafos",
+    "mockups": "Mockups"
+  },
+  "footer": {
+    "about": "Sobre o Brandis",
+    "aboutText": "Transformamos briefings em marcas completas usando inteligência artificial avançada.",
+    "quickLinks": "Links Rápidos",
+    "home": "Início",
+    "pricing": "Planos",
+    "faq": "FAQ",
+    "legal": "Legal",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos e Condições",
+    "contact": "Contato",
+    "contactPage": "Página de Contato",
+    "rights": "Todos os direitos reservados.",
+    "madeBy": "Feito com",
+    "by": "por"
+  },
+  "auth": {
+    "welcome": "Bem-vindo ao Brandis",
+    "subtitle": "Crie sua conta ou faça login para começar",
+    "email": "Email",
+    "password": "Senha",
+    "login": "Entrar",
+    "signup": "Criar Conta",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "signupLink": "Cadastre-se",
+    "loginLink": "Faça login"
+  },
+  "pricing": {
+    "title": "Escolha o plano ideal para você",
+    "subtitle": "Comece gratuitamente e faça upgrade quando precisar",
+    "currentPlan": "Plano Atual",
+    "subscribe": "Assinar",
+    "manageSubscription": "Gerenciar Assinatura",
+    "free": {
+      "name": "Gratuito",
+      "price": "R$ 0",
+      "period": "/mês",
+      "features": [
+        "3 gerações de marca por mês",
+        "Qualidade padrão",
+        "Suporte por email"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "badge": "Mais Popular",
+      "price": "R$ 49",
+      "period": "/mês",
+      "features": [
+        "20 gerações de marca por mês",
+        "Alta qualidade",
+        "Suporte prioritário",
+        "Revisões ilimitadas"
+      ]
+    },
+    "premium": {
+      "name": "Premium",
+      "price": "R$ 99",
+      "period": "/mês",
+      "features": [
+        "Gerações ilimitadas",
+        "Máxima qualidade",
+        "Suporte 24/7",
+        "Revisões ilimitadas",
+        "API de acesso"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "subtitle": "Encontre respostas para as dúvidas mais comuns"
+  },
+  "contact": {
+    "title": "Entre em Contato",
+    "subtitle": "Estamos aqui para ajudar você",
+    "info": "Informações de Contato",
+    "email": "Email",
+    "hours": "Horário de Atendimento",
+    "hoursText": "Segunda a Sexta, 9h às 18h",
+    "support": "Suporte Técnico",
+    "supportText": "Para questões técnicas, envie um email detalhando o problema encontrado."
+  },
+  "notFound": {
+    "title": "404",
+    "subtitle": "Oops! Página não encontrada",
+    "back": "Voltar para o Início"
+  }
+}
