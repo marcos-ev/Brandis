@@ -2,6 +2,8 @@
 
 Transforme briefings em marcas completas usando inteligência artificial. O Brandis é uma ferramenta revolucionária que automatiza o processo de criação de identidades visuais, gerando logos, paletas de cores, tipografia e mockups profissionais a partir de um simples briefing do cliente.
 
+![Alt Text](https://s6.ezgif.com/tmp/ezgif-6e779ad6ab7aef.gif)
+
 ## ✨ Funcionalidades
 
 ### 🎯 Geração Automática de Marcas
